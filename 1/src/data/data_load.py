@@ -1,5 +1,4 @@
 import pandas as pd
-import random
 
 def load_mood_dataset(filepath):
     """
@@ -72,6 +71,7 @@ def inspect_random_variable_column(df, column_name=None):
 
 
 if __name__ == "__main__":
+    import random
     # 加载数据
     df = load_mood_dataset("../../raw_data/dataset_mood_smartphone.csv")
 

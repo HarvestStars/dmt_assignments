@@ -1,7 +1,3 @@
-import pandas as pd
-import data_load
-import processing
-
 def aggregate_by_day(df):
     """
     按照 'id' 和 'date' 维度合并数据：
@@ -38,7 +34,6 @@ def aggregate_by_day(df):
     
     return df_daily
 
-
 def drop_high_nan_columns(df, threshold=0.95, exclude_columns=['mood']):
     """
     删除缺失率高于 threshold 的列（除非列在 exclude_columns 中）
@@ -63,8 +58,9 @@ def drop_high_nan_columns(df, threshold=0.95, exclude_columns=['mood']):
     # 删除列
     return df.drop(columns=to_drop)
 
-
 if __name__ == "__main__":
+    import data_load
+
     # 加载数据
     df = data_load.load_mood_dataset("../../raw_data/dataset_mood_smartphone.csv")
     

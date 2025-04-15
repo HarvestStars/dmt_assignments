@@ -1,12 +1,10 @@
 import pandas as pd
-import data_load
-import processing
 
 def imputing_with_zero(df_cleaned):
     df_method1 = df_cleaned.copy() # keep it clean
     return df_method1.fillna(0) # 方法 1：将所有缺失值填充为 0
 
-def imputing_with_mean(df_cleaned):
+def imputing_with_mean(df_cleaned: pd.DataFrame):
     """
     Impute missing values in the dataset with the mean of each column.
     
@@ -53,6 +51,9 @@ def imputing_with_removal_NaN(df_cleaned):
     return df_method3 # 返回去除后的 DataFrame
 
 if __name__ == "__main__":
+    import data_load
+    import processing
+
     # 加载数据
     df = data_load.load_mood_dataset("../../raw_data/dataset_mood_smartphone.csv")
     
@@ -90,7 +91,7 @@ if __name__ == "__main__":
     df_method1 = imputing_with_zero(df_daily)
     df_method2 = imputing_with_mean(df_daily)
     df_method3 = imputing_with_removal_NaN(df_daily)
-    df_method3.to_csv("../../raw_data/cleaned_data_daily_summary_mood_imputed.csv", index=False)
+    df_method2.to_csv("../../raw_data/cleaned_data_daily_summary_mood_imputed.csv", index=False)
     
     print("Method 1 shape:", df_method1.shape)
     print("Method 2 shape:", df_method2.shape)

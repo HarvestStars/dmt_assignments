@@ -1,5 +1,4 @@
 import pandas as pd
-from datetime import timedelta
 
 def create_sliding_window_dataset(df: pd.DataFrame, window_size=5):
     """
@@ -55,6 +54,7 @@ def create_sliding_window_dataset(df: pd.DataFrame, window_size=5):
     return df_windows
 
 if __name__ == "__main__":
+    from datetime import timedelta
     # 加载数据
     filepath = "../../raw_data/cleaned_data_daily_summary_mood_imputed.csv"
     df = pd.read_csv(filepath) if filepath.endswith('.csv') else pd.read_excel(filepath)
