@@ -75,7 +75,7 @@ if __name__ == "__main__":
     # print(f"随机选中的列: {column_name}, 非空值数量: {non_null_count}")
 
     # 删除缺失率高于 90% 的列
-    cleaned_df = drop_high_nan_columns(df)
+    cleaned_df = drop_high_nan_columns(df, threshold=0.995)
 
     # 保存 删除缺失 后的数据
     cleaned_df.to_csv('../../raw_data/cleaned_data.csv', index=False)
