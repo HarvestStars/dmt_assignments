@@ -1,0 +1,137 @@
+import pandas as pd
+import numpy as np
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader, random_split
+import matplotlib.pyplot as plt
+
+# 1. Load and preprocess data
+filepath = "../../raw_data/cleaned_data_daily_summary_mood_imputed_sliding_window.csv"
+df = pd.read_csv(filepath)
+df.fillna(0, inplace=True)
+
+features = [
+    "mood_hist_mean",
+    "activity_hist_mean",
+    "appCat.builtin_hist_mean",
+    "appCat.office_hist_mean",
+    "call_hist_mean",
+    "circumplex.arousal_hist_mean",
+    "circumplex.valence_hist_mean",
+    "screen_hist_mean",
+]
+X = df[features].values.astype(np.float32)
+y = df["mood_target"].values.astype(np.float32).reshape(-1, 1)
+
+# Standardize features (manual, since no sklearn)
+X_mean = X.mean(axis=0)
+X_std = X.std(axis=0)
+X_scaled = (X - X_mean) / (X_std + 1e-8)  # avoid division by zero
+
+# Train/test split (manual, since no sklearn)
+n_samples = X_scaled.shape[0]
+n_train = int(n_samples * 0.95)
+indices = np.random.RandomState(42).permutation(n_samples)
+train_idx, test_idx = indices[:n_train], indices[n_train:]
+X_train, X_test = X_scaled[train_idx], X_scaled[test_idx]
+y_train, y_test = y[train_idx], y[test_idx]
+
+# Reshape for LSTM: (samples, seq_len=1, features)
+X_train_lstm = X_train[:, np.newaxis, :]
+X_test_lstm = X_test[:, np.newaxis, :]
+
+# 2. PyTorch Dataset and DataLoader
+class MoodDataset(Dataset):
+    def __init__(self, X, y):
+        self.X = torch.tensor(X, dtype=torch.float32)
+        self.y = torch.tensor(y, dtype=torch.float32)
+    def __len__(self):
+        return len(self.X)
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
+train_dataset = MoodDataset(X_train_lstm, y_train)
+test_dataset = MoodDataset(X_test_lstm, y_test)
+
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
+
+# 3. Define the LSTM model
+class LSTMRegressor(nn.Module):
+    def __init__(self, input_size, hidden_size=64, num_layers=1):
+        super(LSTMRegressor, self).__init__()
+        self.lstm = nn.LSTM(input_size, hidden_size, num_layers, batch_first=True)
+        self.fc1 = nn.Linear(hidden_size, 32)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(32, 1)
+    def forward(self, x):
+        out, _ = self.lstm(x)
+        out = out[:, -1, :]  # take last time step
+        out = self.relu(self.fc1(out))
+        out = self.fc2(out)
+        return out
+
+input_size = X_train.shape[1]
+model = LSTMRegressor(input_size=input_size)
+
+# 4. Training setup
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = model.to(device)
+criterion = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+# 5. Training loop
+num_epochs = 100
+best_loss = float('inf')
+for epoch in range(num_epochs):
+    model.train()
+    running_loss = 0.0
+    for xb, yb in train_loader:
+        xb, yb = xb.to(device), yb.to(device)
+        optimizer.zero_grad()
+        preds = model(xb)
+        loss = criterion(preds, yb)
+        loss.backward()
+        optimizer.step()
+        running_loss += loss.item() * xb.size(0)
+    epoch_loss = running_loss / len(train_loader.dataset)
+    if epoch_loss < best_loss:
+        best_loss = epoch_loss
+        torch.save(model.state_dict(), "model1.pt")
+    if (epoch+1) % 10 == 0 or epoch == 0:
+        print(f"Epoch {epoch+1}/{num_epochs}, Loss: {epoch_loss:.4f}")
+
+# 6. Load best model and evaluate
+model.load_state_dict(torch.load("model1.pt"))
+model.eval()
+def get_predictions(loader):
+    preds, actuals = [], []
+    with torch.no_grad():
+        for xb, yb in loader:
+            xb = xb.to(device)
+            out = model(xb).cpu().numpy()
+            preds.append(out)
+            actuals.append(yb.numpy())
+    return np.vstack(preds).flatten(), np.vstack(actuals).flatten()
+
+train_preds, train_actuals = get_predictions(train_loader)
+test_preds, test_actuals = get_predictions(test_loader)
+
+# 7. Save results to CSV
+pd.DataFrame({"train_predictions": train_preds, "Actuals": train_actuals}).to_csv("train_results.csv", index=False)
+pd.DataFrame({"test_predictions": test_preds, "Actuals": test_actuals}).to_csv("test_results.csv", index=False)
+
+# 8. Plot results
+plt.figure()
+plt.plot(train_preds, label="Predictions")
+plt.plot(train_actuals, label="Actuals")
+plt.legend()
+plt.title("Training Results")
+plt.show()
+
+plt.figure()
+plt.plot(test_preds, label="Predictions")
+plt.plot(test_actuals, label="Actuals")
+plt.legend()
+plt.title("Testing Results")
+plt.show()
