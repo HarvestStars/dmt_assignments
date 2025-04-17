@@ -5,13 +5,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from tensorflow.python.keras.models import Sequential
-from tensorflow.python.keras.layers import InputLayer, Dense, Dropout
-from tensorflow.python.keras.layers.recurrent import LSTM
-from tensorflow.python.keras.callbacks import ModelCheckpoint
-from tensorflow.python.keras.losses import MeanSquaredError
-from tensorflow.python.keras.metrics import RootMeanSquaredError
-from tensorflow.python.keras.models import load_model
+from sklearn.metrics import mean_squared_error
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import InputLayer, LSTM, Dense, Dropout
+from tensorflow.keras.callbacks import ModelCheckpoint
+from tensorflow.keras.losses import MeanSquaredError
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.metrics import RootMeanSquaredError
+from tensorflow.keras.models import load_model
 
 """
 Output list:
@@ -19,6 +20,7 @@ Output list:
 (2) csv file with the testing results
 (3) plot of the training results
 (4) plot of the testing results
+(5) plot of the residuals foe test set
 """
 
 # step 1: load the data first
@@ -48,56 +50,80 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
-# 4. Reshape for LSTM: (samples, timesteps, features)
+# step 4: convert data for LSTM
 X_train_lstm = np.expand_dims(X_train, axis=1)  # (samples, 1, features)
 X_test_lstm = np.expand_dims(X_test, axis=1)
 
 # step 5: build the RNN model
 model1 = Sequential()
-model1.add(InputLayer(input_shape=(X_train.shape[1], 1)))
+model1.add(InputLayer(input_shape=(1, X_train.shape[1])))
 model1.add(LSTM(64, return_sequences=True))  # LSTM layer with 64 units
 model1.add(Dense(32, activation="relu"))  # Dense layer and ReLU activation
 model1.add(Dense(1, activation="linear"))  # Output layer with linear activation
 model1.summary()
 
 # step 6: compile the model with the lowest MSE loss
-cp = ModelCheckpoint("model1/", save_best_only=True)
+cp = ModelCheckpoint("model1.h5", save_best_only=True)
 model1.compile(
-    optimizer='adam',
+    optimizer=Adam(learning_rate=0.0001),
     loss=MeanSquaredError(),
     metrics=[RootMeanSquaredError()],
 )
+model1.fit(X_train_lstm, y_train, epochs=100, validation_split=0.1, callbacks=[cp])
 
-# 7. Train the model
-history = model1.fit(
-    X_train_lstm, y_train, epochs=100, validation_split=0.2, callbacks=[cp]
-)
-
-# 8. Load the best model and evaluate
-model1 = load_model("model1.keras")
+# step 7: load the best model and evaluate it
+model1 = load_model("model1.h5")
 train_predictions = model1.predict(X_train_lstm).flatten()
-train_results = pd.DataFrame({
-    "train_predictions": train_predictions,
-    "Actuals": y_train.flatten(),
-})
-train_results.to_csv("train_results.csv", index=False)
+print(train_predictions.shape, y_train.flatten().shape)
+train_results = pd.DataFrame(
+    data={"train_predictions": train_predictions, "Actuals": y_train.flatten()}
+)
+train_results["residuals"] = (
+    train_results["train_predictions"] - train_results["Actuals"]
+)
+# calculate the mean squared error and root mean squared error
+mse_tra = mean_squared_error(
+    train_results["Actuals"], train_results["train_predictions"]
+)
+rmse_tra = np.sqrt(mse_tra)
 
+train_results.to_csv("train_results.csv", index=False)  # save training results to a csv
+
+# plot the difference between the predictions and the actuals
 plt.plot(train_results["train_predictions"], label="Predictions")
 plt.plot(train_results["Actuals"], label="Actuals")
 plt.legend()
+plt.grid()
 plt.title("Training Results")
 plt.show()
 
-# 9. Test evaluation
+# step 8: evaluate the model on the test result
 test_predictions = model1.predict(X_test_lstm).flatten()
-test_results = pd.DataFrame({
-    "test_predictions": test_predictions,
-    "Actuals": y_test.flatten(),
-})
-test_results.to_csv("test_results.csv", index=False)
+test_results = pd.DataFrame(
+    data={"test_predictions": test_predictions, "Actuals": y_test.flatten()}
+)
+test_results["residuals"] = test_results["test_predictions"] - test_results["Actuals"]
 
-plt.plot(test_results["test_predictions"], label="Predictions")
-plt.plot(test_results["Actuals"], label="Actuals")
+# calculate the mean squared error and root mean squared error
+mse = mean_squared_error(test_results["Actuals"], test_results["test_predictions"])
+rmse = np.sqrt(mse)
+
+test_results.to_csv("test_results.csv", index=False)  # save results to a csv
+
+# plot the difference between the predictions and the actuals
+plt.plot(test_results["test_predictions"], label="Predictions", marker="o")
+plt.plot(test_results["Actuals"], label="Actuals", marker="x")
 plt.legend()
+plt.grid()
 plt.title("Testing Results")
 plt.show()
+
+# plot the difference in residuals
+plt.plot(test_results["residuals"], label="Testing Residuals", color="red")
+plt.legend()
+plt.grid()
+plt.title("Residuals")
+plt.show()
+
+print("MSE of training:", mse_tra, "rMSE of training", rmse_tra)
+print("MSE of testing:", mse, "rMSE of testing", rmse)
