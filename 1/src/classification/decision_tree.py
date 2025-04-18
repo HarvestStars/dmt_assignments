@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import AdaBoostRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 import matplotlib.pyplot as plt
 
 """
@@ -55,10 +55,20 @@ mse_test = mean_squared_error(y_test, test_predictions)
 mse_train2 = mean_squared_error(y_train, train_predictions2)
 mse_test2 = mean_squared_error(y_test, test_predictions2)
 
+mae_train = mean_absolute_error(y_train, train_predictions)
+mae_test = mean_absolute_error(y_test, test_predictions)
+mae_train2 = mean_absolute_error(y_train, train_predictions2)
+mae_test2 = mean_absolute_error(y_test, test_predictions2)
+
 print(f"Train MSE (max_depth=3): {mse_train:.4f}")
 print(f"Test MSE (max_depth=3): {mse_test:.4f}")
 print(f"Train MSE (max_depth=5): {mse_train2:.4f}")
 print(f"Test MSE (max_depth=5): {mse_test2:.4f}")
+
+print(f"Train MAE (max_depth=3): {mae_train:.4f}")
+print(f"Test MAE (max_depth=3): {mae_test:.4f}")
+print(f"Train MAE (max_depth=5): {mae_train2:.4f}")
+print(f"Test MAE (max_depth=5): {mae_test2:.4f}")
 
 # step 6: plot the results
 plt.figure(figsize=(10, 5))
