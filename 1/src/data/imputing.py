@@ -25,6 +25,10 @@ def imputing_with_mean(df_cleaned: pd.DataFrame):
 
     # 按用户 id 分组，对每列用组内均值填充
     df_method2[feature_cols] = df_method2.groupby('id')[feature_cols].transform(lambda x: x.fillna(x.mean()))
+    
+    # 兜底操作：如果还有 NaN（比如某个 id 的某列全部为 NaN），用 0 填充
+    df_method2[feature_cols] = df_method2[feature_cols].fillna(0)
+
     return df_method2 # 返回填充后的 DataFrame
 
 def imputing_with_removal_NaN(df_cleaned):
