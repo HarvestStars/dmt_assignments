@@ -37,37 +37,38 @@ print("📉 MSE:", mse)
 print("\n📋 Classification Report:\n", report)
 
 # === Step 7: 可视化混淆矩阵 ===
-y_test = [0]*31 + [1]*156 + [2]*140  # 从支持数量推测
-y_pred = (
-    [0]*10 + [1]*10 + [2]*11 +   # 对 label 0 的预测分布
-    [0]*30 + [1]*101 + [2]*25 +  # 对 label 1 的预测分布
-    [0]*25 + [1]*20 + [2]*95     # 对 label 2 的预测分布
-)
-
-# 生成混淆矩阵
-cm = confusion_matrix(y_test, y_pred, labels=[0, 1, 2])
-disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[0, 1, 2])
-
-# 可视化混淆矩阵
-plt.figure(figsize=(6, 5))
+# 混淆矩阵
+cm = confusion_matrix(y_test, y_pred, labels=[0, 1])
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Low (<7)", "High (≥7)"])
 disp.plot(cmap="Blues", values_format='d')
-plt.title("Confusion Matrix")
-plt.show()
 
-# 再画一个分类分布对比条形图
+# 评估指标
+print("Accuracy:", accuracy_score(y_test, y_pred))
+print("MAE:", mean_absolute_error(y_test, y_pred))
+print("MSE:", mean_squared_error(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred, target_names=["Low (<7)", "High (≥7)"]))
+
+# 统计各类别数量（真实和预测）
 actual_counts = pd.Series(y_test).value_counts().sort_index()
 pred_counts = pd.Series(y_pred).value_counts().sort_index()
 
+# 确保两个 Series 有相同索引（0 和 1）
+all_classes = [0, 1]
+actual_counts = actual_counts.reindex(all_classes, fill_value=0)
+pred_counts = pred_counts.reindex(all_classes, fill_value=0)
+
+# 合并到一个 DataFrame
 compare_df = pd.DataFrame({
     'Actual': actual_counts,
     'Predicted': pred_counts
 })
 
-compare_df.plot(kind='bar', figsize=(8, 5))
-plt.title("Actual vs Predicted Class Counts")
-plt.xlabel("Mood Type")
+# 绘图
+compare_df.plot(kind='bar', figsize=(7, 5), color=['orange', 'steelblue'])
+plt.title("Actual vs Predicted Class Counts (Test Set)")
+plt.xlabel("Mood Type (Binary)")
 plt.ylabel("Count")
-plt.xticks(rotation=0)
+plt.xticks(ticks=[0, 1], labels=["Low (<7)", "High (≥7)"], rotation=0)
 plt.grid(axis='y')
 plt.tight_layout()
 plt.show()
