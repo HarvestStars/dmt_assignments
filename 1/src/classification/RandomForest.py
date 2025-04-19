@@ -65,10 +65,11 @@ compare_df = pd.DataFrame({
 
 # 绘图
 compare_df.plot(kind='bar', figsize=(7, 5), color=['orange', 'steelblue'])
-plt.title("Actual vs Predicted Class Counts (Test Set)")
-plt.xlabel("Mood Type (Binary)")
-plt.ylabel("Count")
-plt.xticks(ticks=[0, 1], labels=["Low (<7)", "High (≥7)"], rotation=0)
+plt.title("Random Forest \nActual vs Predicted Class Counts (Test Set)", fontsize=16)
+plt.xlabel("Mood Type (Binary)", fontsize=16)
+plt.ylabel("Count", fontsize=16)
+plt.xticks(ticks=[0, 1], labels=["Low (<7)", "High (≥7)"], rotation=0, fontsize=14)
 plt.grid(axis='y')
 plt.tight_layout()
+plt.savefig("../../figs/actual_vs_predicted_counts.png", dpi=300)
 plt.show()
