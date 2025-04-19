@@ -31,6 +31,38 @@ def imputing_with_mean(df_cleaned: pd.DataFrame):
 
     return df_method2 # 返回填充后的 DataFrame
 
+def mood_guided_imputation(df: pd.DataFrame):
+    df_interp = df.copy()
+    feature_cols = df.columns.difference(['id', 'date', 'mood'])
+
+    for uid, group in df.groupby('id'):
+        for col in feature_cols:
+            col_values = group[col]
+            mood_values = group['mood']
+
+            if col_values.isna().any():
+                max_val = col_values.max(skipna=True)
+                min_val = col_values.min(skipna=True)
+
+                # 如果只有一个非空值，无法插值，就跳过
+                if pd.isna(max_val) or pd.isna(min_val) or max_val == min_val:
+                    continue
+
+                # 标准化 mood 到 [0, 1] 区间
+                mood_scaled = (mood_values - mood_values.min()) / (mood_values.max() - mood_values.min() + 1e-9)
+
+                # 插值值 = min + (max - min) * mood_scaled
+                imputed_values = min_val + (max_val - min_val) * mood_scaled
+
+                # 用这些 imputed_values 仅填补 NaN
+                fill_values = col_values.copy()
+                fill_values[col_values.isna()] = imputed_values[col_values.isna()]
+                df_interp.loc[group.index, col] = fill_values
+
+    # 最后兜底，如果还有 NaN，用 0 填
+    df_interp[feature_cols] = df_interp[feature_cols].fillna(0)
+    return df_interp
+
 def imputing_with_removal_NaN(df_cleaned):
     """
     Remove rows with NaN values in the dataset.

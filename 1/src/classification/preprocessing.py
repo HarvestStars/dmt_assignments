@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 
 # 加载原始特征数据（包括 mood_type）
-df = pd.read_csv("../../raw_data/mood_classified_sliding_window.csv")  # 你自己的文件路径
+df = pd.read_csv("../../raw_data/mood_classified_sliding_window.csv")
 
 # 初始化训练和测试集 DataFrame
 train_df = pd.DataFrame()
