@@ -10,25 +10,25 @@ def load_mood_dataset(filepath):
     返回:
         df_pivot: DataFrame - 每个时间点、每个用户的变量在一行显示
     """
-    # Step 1: 读取数据
+    # Step 1: load data
     df = pd.read_csv(filepath) if filepath.endswith('.csv') else pd.read_excel(filepath)
 
-    # Step 2: 类型转换
+    # Step 2: preprocess
     df.columns = df.columns.str.lower()
     df['time'] = pd.to_datetime(df['time'], errors='coerce')
     df['id'] = df['id'].astype(str)
     df['variable'] = df['variable'].astype(str)
     df['value'] = pd.to_numeric(df['value'], errors='coerce')
 
-    # Step 3: 透视为“宽格式”表格（每一行是一个 [user, time]，每一列是一个 variable）
+    # Step 3: wide format
     df_pivot = df.pivot_table(
         index=['id', 'time'],
         columns='variable',
         values='value',
-        aggfunc='mean'  # 防止重复，取均值
+        aggfunc='mean'  # mean
     ).reset_index()
 
-    # 可选：按时间排序
+    # time ordering
     df_pivot = df_pivot.sort_values(by=['id', 'time']).reset_index(drop=True)
 
     return df_pivot
@@ -72,10 +72,8 @@ def inspect_random_variable_column(df, column_name=None):
 
 if __name__ == "__main__":
     import random
-    # 加载数据
+    # load data
     df = load_mood_dataset("../../raw_data/dataset_mood_smartphone.csv")
-
-    # 查看结构
     print(df.head(3))
 
     # 快速了解缺失情况
