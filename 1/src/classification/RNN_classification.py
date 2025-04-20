@@ -42,9 +42,6 @@ y_train = train_df[target]
 X_test = test_df[features]
 y_test = test_df[target]
 
-# remove NaN values with mean imputation
-X_train = X_train.fillna(X_train.mean())
-X_test = X_test.fillna(X_test.mean())
 
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train)
@@ -111,7 +108,7 @@ model1.compile(
 History = model1.fit(
     X_train_lstm,
     y_train,
-    epochs=100,
+    epochs=80,
     batch_size=32,
     validation_split=0.1,
     shuffle=True,
@@ -140,12 +137,14 @@ plt.grid()
 plt.show()
 
 plt.figure(figsize=(10, 5))
-plt.plot(History.history["accuracy"], label="train_accuracy")
-plt.plot(History.history["val_accuracy"], label="val_accuracy")
-plt.title("Accuracy curve for training and validation")
-plt.xlabel("Epochs")
-plt.ylabel("Accuracy")
-plt.legend()
+plt.plot(History.history["accuracy"])
+plt.plot(History.history["val_accuracy"])
+plt.title("Accuracy curve for training and validation", fontsize=18)
+plt.xlabel("Epochs", fontsize=16)
+plt.xticks(fontsize=14)
+plt.ylabel("Accuracy", fontsize=16)
+plt.yticks(fontsize=14)
+plt.legend(["train_accuracy", "val_accuracy"], fontsize=14, loc="lower right")
 plt.grid()
 plt.show()
 
@@ -156,7 +155,19 @@ cm = confusion_matrix(y_test, y_pred)
 disp = ConfusionMatrixDisplay(
     confusion_matrix=cm, display_labels=["Class 0", "Class 1"]
 )
-disp.plot(cmap="Blues", values_format="d")  # 'd' for integer display
-plt.title("Confusion Matrix")
+fig, ax = plt.subplots(figsize=(8, 6))
+disp.plot(cmap="Blues", values_format="d", ax=ax)
+if hasattr(disp, "text_"):
+    for text in disp.text_.ravel():  # or .flatten()
+        if text is not None:
+            text.set_fontsize(16)
+
+
+# Set custom font sizes
+plt.title("Confusion Matrix", fontsize=18)
+ax.set_xlabel("Predicted Label", fontsize=14)
+ax.set_ylabel("True Label", fontsize=14)
+ax.tick_params(axis="both", labelsize=12)  # tick labels
+
 plt.grid(False)
 plt.show()

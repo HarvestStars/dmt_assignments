@@ -13,6 +13,7 @@ from tensorflow.keras.losses import MeanSquaredError
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.metrics import RootMeanSquaredError
 from tensorflow.keras.models import load_model
+from tensorflow.keras.regularizers import l2
 
 """
 Output list:
@@ -46,7 +47,7 @@ y = df["mood_target"].values
 scaler = StandardScaler()  # standardize the data
 X_scaled = scaler.fit_transform(X)  # fit the scaler to the data
 X_train, X_test, y_train, y_test = train_test_split(
-    X_scaled, y, test_size=0.05, train_size=0.95, random_state=42
+    X_scaled, y, test_size=0.10, train_size=0.90, random_state=42
 )
 print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
@@ -57,7 +58,14 @@ X_test_lstm = np.expand_dims(X_test, axis=1)
 # step 5: build the RNN model
 model1 = Sequential()
 model1.add(InputLayer(input_shape=(1, X_train.shape[1])))
-model1.add(LSTM(64, return_sequences=True))  # LSTM layer with 64 units
+model1.add(
+    LSTM(
+        128,
+        kernel_regularizer=l2(0.01),
+        recurrent_regularizer=l2(0.01),
+        return_sequences=True,
+    )
+)  # LSTM layer with 64 units
 model1.add(Dense(32, activation="relu"))  # Dense layer and ReLU activation
 model1.add(Dense(1, activation="linear"))  # Output layer with linear activation
 model1.summary()
@@ -69,7 +77,14 @@ model1.compile(
     loss=MeanSquaredError(),
     metrics=[RootMeanSquaredError()],
 )
-model1.fit(X_train_lstm, y_train, epochs=100, validation_split=0.1, callbacks=[cp])
+model1.fit(
+    X_train_lstm,
+    y_train,
+    epochs=100,
+    batch_size=32,
+    validation_split=0.1,
+    callbacks=[cp],
+)
 
 # step 7: load the best model and evaluate it
 model1 = load_model("model1.h5")
@@ -92,9 +107,13 @@ train_results.to_csv("train_results.csv", index=False)  # save training results 
 # plot the difference between the predictions and the actuals
 plt.plot(train_results["train_predictions"], label="Predictions")
 plt.plot(train_results["Actuals"], label="Actuals")
-plt.legend()
+plt.legend(["Predictions", "Actuals"], fontsize=14, loc="lower right")
+plt.xlabel("Test set", fontsize=16)
+plt.ylabel("Mood", fontsize=16)
+plt.xticks(fontsize=14)
+plt.yticks(fontsize=14)
 plt.grid()
-plt.title("Training Results")
+plt.title("Training Results", fontsize=18)
 plt.show()
 
 # step 8: evaluate the model on the test result
@@ -113,9 +132,13 @@ test_results.to_csv("test_results.csv", index=False)  # save results to a csv
 # plot the difference between the predictions and the actuals
 plt.plot(test_results["test_predictions"], label="Predictions", marker="o")
 plt.plot(test_results["Actuals"], label="Actuals", marker="x")
-plt.legend()
+plt.legend(["Predictions", "Actuals"], fontsize=14, loc="lower right")
+plt.xlabel("Test set", fontsize=20)
+plt.ylabel("Mood", fontsize=20)
+plt.xticks(fontsize=18)
+plt.yticks(fontsize=18)
 plt.grid()
-plt.title("Testing Results")
+plt.title("Testing Results LSTM Regression", fontsize=22)
 plt.show()
 
 # plot the difference in residuals
