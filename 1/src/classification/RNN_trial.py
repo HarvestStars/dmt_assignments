@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_squared_error, mean_absolute_error
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer, LSTM, Dense, Dropout
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -96,12 +96,14 @@ train_results = pd.DataFrame(
 train_results["residuals"] = (
     train_results["train_predictions"] - train_results["Actuals"]
 )
-# calculate the mean squared error and root mean squared error
+# calculate the mean squared error, root mean squared error and mean absolute error
 mse_tra = mean_squared_error(
     train_results["Actuals"], train_results["train_predictions"]
 )
 rmse_tra = np.sqrt(mse_tra)
-
+mae_tra = mean_absolute_error(
+    train_results["Actuals"], train_results["train_predictions"]
+)
 train_results.to_csv("train_results.csv", index=False)  # save training results to a csv
 
 # plot the difference between the predictions and the actuals
@@ -125,6 +127,7 @@ test_results["residuals"] = test_results["test_predictions"] - test_results["Act
 
 # calculate the mean squared error and root mean squared error
 mse = mean_squared_error(test_results["Actuals"], test_results["test_predictions"])
+mae = mean_absolute_error(test_results["Actuals"], test_results["test_predictions"])
 rmse = np.sqrt(mse)
 
 test_results.to_csv("test_results.csv", index=False)  # save results to a csv
@@ -148,5 +151,5 @@ plt.grid()
 plt.title("Residuals")
 plt.show()
 
-print("MSE of training:", mse_tra, "rMSE of training", rmse_tra)
-print("MSE of testing:", mse, "rMSE of testing", rmse)
+print("MSE of training:", mse_tra, "rMSE of training", rmse_tra, "MAE of training:", mae_tra)
+print("MSE of testing:", mse, "rMSE of testing", rmse, "MAE of testing:", mae)
