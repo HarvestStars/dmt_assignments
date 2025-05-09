@@ -1,0 +1,81 @@
+字段名                       缺值情况
+
+
+# A类字段 搜索
+srch_id
+date_time
+site_id
+srch_destination_id
+srch_length_of_stay
+srch_booking_window
+srch_adults_count
+srch_children_count
+srch_room_count
+srch_saturday_night_bool
+
+
+# B类字段 酒店
+prop_id
+prop_starrating
+prop_review_score            0.001485 # 酒店点评分 （0 表示没有，null表示不可获取）
+prop_brand_bool
+prop_location_score1 
+prop_location_score2         0.219902 # 酒店位置评分
+prop_country_id
+prop_log_historical_price
+srch_query_affinity_score    0.935986  # 互联网亲和性，也即互联网点击率。空表示没有注册营销平台
+
+# C类字段 定价
+price_usd
+promotion_flag 
+prop_log_historical_price
+booking_bool
+click_bool
+
+
+# D类字段 用户(新用户，冷启动)
+visitor_location_country_id
+visitor_hist_starrating      0.949204  # 过去历史中居住酒店的平均星数
+visitor_hist_adr_usd         0.948977  # 过去居住酒店的均价
+
+
+# E类字段 距离
+orig_destination_distance    0.324258 # 搜索时，用户和酒店的距离，没卵用？
+
+
+# F类字段 列表结果默认字母排序还是随机排序
+random_bool
+
+
+# G类字段 同酒店竞品平台信息
+comp1_rate                   0.975813
+comp1_inv                    0.973871
+comp1_rate_percent_diff      0.980954
+comp2_rate                   0.591664
+comp2_inv                    0.570367
+comp2_rate_percent_diff      0.887818
+comp3_rate                   0.690565
+comp3_inv                    0.667028
+comp3_rate_percent_diff      0.904646
+comp4_rate                   0.938008
+comp4_inv                    0.930690
+comp4_rate_percent_diff      0.973563
+comp5_rate                   0.551792
+comp5_inv                    0.524031
+comp5_rate_percent_diff      0.830367
+comp6_rate                   0.951565
+comp6_inv                    0.947366
+comp6_rate_percent_diff      0.980604
+comp7_rate                   0.936401
+comp7_inv                    0.928117
+comp7_rate_percent_diff      0.972064
+comp8_rate                   0.613449
+comp8_inv                    0.599160
+comp8_rate_percent_diff      0.876021
+
+
+# F类字段 训练标签
+booking_bool
+click_bool
+gross_bookings_usd           0.972089
+position
