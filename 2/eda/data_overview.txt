@@ -1,6 +1,5 @@
 字段名                       缺值情况
 
-
 # A类字段 搜索
 srch_id
 date_time
@@ -13,7 +12,6 @@ srch_children_count
 srch_room_count
 srch_saturday_night_bool
 
-
 # B类字段 酒店
 prop_id
 prop_starrating
@@ -23,7 +21,7 @@ prop_location_score1
 prop_location_score2         0.219902 # 酒店位置评分
 prop_country_id
 prop_log_historical_price
-srch_query_affinity_score    0.935986  # 互联网亲和性，也即互联网点击率。空表示没有注册营销平台
+srch_query_affinity_score    0.935986  # 互联网亲和性，也即互联网点击率。空表示没有注册营销平台，如自媒体号
 
 # C类字段 定价
 price_usd
@@ -32,22 +30,18 @@ prop_log_historical_price
 booking_bool
 click_bool
 
-
 # D类字段 用户(新用户，冷启动)
 visitor_location_country_id
 visitor_hist_starrating      0.949204  # 过去历史中居住酒店的平均星数
 visitor_hist_adr_usd         0.948977  # 过去居住酒店的均价
 
-
 # E类字段 距离
 orig_destination_distance    0.324258 # 搜索时，用户和酒店的距离，没卵用？
-
 
 # F类字段 列表结果默认字母排序还是随机排序
 random_bool
 
-
-# G类字段 同酒店竞品平台信息
+# G类字段 同酒店竞品平台信息(合并使用，代表市场竞品情况)
 comp1_rate                   0.975813
 comp1_inv                    0.973871
 comp1_rate_percent_diff      0.980954
@@ -72,7 +66,6 @@ comp7_rate_percent_diff      0.972064
 comp8_rate                   0.613449
 comp8_inv                    0.599160
 comp8_rate_percent_diff      0.876021
-
 
 # F类字段 训练标签
 booking_bool
