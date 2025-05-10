@@ -8,7 +8,12 @@ def process_random_feature(df: pd.DataFrame, drop_raw_columns: bool = True, non_
     else:
         df_out = df.copy()
 
+    final_columns = [
+        "random_bool"
+    ]
+
     if drop_raw_columns:
         df_out.drop(columns=["random_bool"], inplace=True)
+        final_columns.remove("random_bool")
 
-    return df_out, [], []
+    return df_out, final_columns, []

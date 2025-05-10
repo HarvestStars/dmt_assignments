@@ -30,18 +30,20 @@ def process_hotel_features(df: pd.DataFrame, drop_raw_columns: bool = True, non_
             return 5 # "very_high"
 
     df_out["review_score_label"] = df_out["prop_review_score"].apply(map_review_score)
+    df_out["prop_review_score"] = df_out["prop_review_score"].fillna(-1) # 填补缺失值为 -1
 
     # ---------- 2. prop_location_score2 缺失标志 ----------
     # 删除 score1
     df_out.drop(columns=["prop_location_score1"], inplace=True)
+
     # 缺失标志
     # df_processed["location_score2_missing"] = df_processed["prop_location_score2"].isnull().astype(int)
     # 填补 score2 为极小值（例如 -1）
-    df_out["location_score2_filled"] = df_out["prop_location_score2"].fillna(-1)
+    df_out["prop_location_score2"] = df_out["prop_location_score2"].fillna(-1)
 
     # ---------- 3. srch_query_affinity_score 缺失标志 ----------
     df_out["query_affinity_missing"] = df_out["srch_query_affinity_score"].isnull().astype(int)
-    # df_processed["srch_query_affinity_score"] = df_processed["srch_query_affinity_score"].fillna(-999) # 值很小意味着没有曝光
+    df_out["srch_query_affinity_score"] = df_out["srch_query_affinity_score"].fillna(-999) # 值很小意味着没有曝光
 
     # ---------- 4. prop_log_historical_price 分类映射 ----------
     def map_price_level(x):
@@ -57,18 +59,21 @@ def process_hotel_features(df: pd.DataFrame, drop_raw_columns: bool = True, non_
             return 4 # "high"
     df_out["historical_price_level"] = df_out["prop_log_historical_price"].apply(map_price_level)
 
-    # ---------- 5. 删除原始字段（可选） ----------
-    if drop_raw_columns:
-        cols_to_drop = ["prop_review_score", "prop_location_score2", "srch_query_affinity_score", "prop_log_historical_price"]
-        existing = [col for col in cols_to_drop if col in df_out.columns]
-        df_out.drop(columns=existing, inplace=True)
-
     final_cols = [
-        "prop_id", "review_score_label","location_score2_filled", "historical_price_level", "query_affinity_missing"
+        "prop_id", 
+        "review_score_label", 
+        "prop_location_score2",
+        "prop_brand_bool",
+        "historical_price_level",
+        "srch_query_affinity_score", 
+        "query_affinity_missing"
     ]
 
     final_class_labels = [
-        "review_score_label", "location_score2_filled", "historical_price_level", "query_affinity_missing"
+        "review_score_label", 
+        "prop_brand_bool",
+        "historical_price_level", 
+        "query_affinity_missing"
     ]
 
     return df_out, final_cols, final_class_labels

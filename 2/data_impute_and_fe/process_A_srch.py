@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def process_search_behavior_features(df: pd.DataFrame, drop_raw_columns: bool = True, non_copy: bool = True) -> pd.DataFrame:
+def process_search_behavior_features_binned(df: pd.DataFrame, drop_raw_columns: bool = True, non_copy: bool = True) -> pd.DataFrame:
     df_out = None
     if non_copy:
         df_out = df
@@ -64,6 +64,28 @@ def process_search_behavior_features(df: pd.DataFrame, drop_raw_columns: bool = 
 
     return df_out, final_columns, final_class_labels
 
+def process_search_features_smoothed(df: pd.DataFrame, drop_raw_columns: bool = True, non_copy: bool = True) -> pd.DataFrame:
+    df_out = None
+    if non_copy:
+        df_out = df
+    else:
+        df_out = df.copy()
+
+    # drop raw columns
+    df_out.drop(columns=["date_time", "site_id", "srch_room_count"], inplace=True)
+
+    # add smoothed features
+    df_out["total_guests"] = df_out["srch_adults_count"] + df_out["srch_children_count"]
+    df_out.drop(columns=["srch_adults_count", "srch_children_count"], inplace=True)
+
+    final_columns = [
+        "srch_id", "srch_destination_id", "srch_length_of_stay",
+        "srch_booking_window", "total_guests",
+        "srch_saturday_night_bool"
+    ]
+
+    return df_out, final_columns, []
+
 if __name__ == "__main__":
     import pandas as pd
     from pathlib import Path
@@ -73,7 +95,7 @@ if __name__ == "__main__":
     OUT_DIR.mkdir(exist_ok=True)
 
     df = pd.read_csv(CSV_PATH, nrows=100_000)
-    df_a_clean = process_search_behavior_features(df, drop_raw_columns=True)
+    df_a_clean = process_search_behavior_features_binned(df, drop_raw_columns=True)
     df_a_clean.to_csv(OUT_DIR / "processed_A.csv", index=False)
 
     print("✅ Processed A class features and saved to split_outputs/processed_A.csv")

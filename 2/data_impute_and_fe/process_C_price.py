@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-def process_price_feature(df: pd.DataFrame, drop_raw_columns: bool = True, non_copy: bool = True) -> pd.DataFrame:
+def process_price_feature_binned(df: pd.DataFrame, drop_raw_columns: bool = True, non_copy: bool = True) -> pd.DataFrame:
     """
     对 C 类字段中的 price_usd 进行区间分箱和标签化。
     默认删除原始 price_usd 列（可配置）。
@@ -44,6 +44,24 @@ def process_price_feature(df: pd.DataFrame, drop_raw_columns: bool = True, non_c
 
     return df_out, final_columns, final_class_labels
 
+def process_price_feature_smoothed(df: pd.DataFrame, drop_raw_columns: bool = True, non_copy: bool = True) -> pd.DataFrame:
+    df_out = None
+    if non_copy:
+        df_out = df
+    else:
+        df_out = df.copy()
+
+
+    final_columns = [
+        "price_usd", "promotion_flag"
+    ]
+
+    final_class_labels = [
+        "promotion_flag"
+    ]
+
+    return df_out, final_columns, final_class_labels
+
 if __name__ == "__main__":
     import pandas as pd
     from pathlib import Path
@@ -53,7 +71,7 @@ if __name__ == "__main__":
     OUT_DIR.mkdir(exist_ok=True)
 
     df = pd.read_csv(CSV_PATH, nrows=100_000)
-    df_c_clean = process_price_feature(df, drop_raw_columns=True)
+    df_c_clean = process_price_feature_binned(df, drop_raw_columns=True)
     df_c_clean.to_csv(OUT_DIR / "processed_C.csv", index=False)
 
     print("✅ Processed C class features and saved to split_outputs/processed_C.csv")

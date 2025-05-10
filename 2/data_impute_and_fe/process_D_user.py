@@ -17,6 +17,10 @@ def process_new_user(df: pd.DataFrame, drop_raw_columns: bool = False, non_copy:
         df_out["visitor_hist_adr_usd"].isnull()
     ).astype(int)
 
+    # 填充缺失值
+    df_out["visitor_hist_starrating"].fillna(0, inplace=True)
+    df_out["visitor_hist_adr_usd"].fillna(0, inplace=True)
+
     final_columns = [
         "visitor_hist_starrating",
         "visitor_hist_adr_usd",
