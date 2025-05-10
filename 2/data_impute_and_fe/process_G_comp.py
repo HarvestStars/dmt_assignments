@@ -13,7 +13,7 @@ import numpy as np
 # winrate = 胜出平台数 / 有效平台数
 # loserate = 劣势平台数 / 有效平台数
 
-def add_competition_features(df: pd.DataFrame, drop_raw_comp_columns: bool = True) -> pd.DataFrame:
+def add_competition_features(df: pd.DataFrame, drop_raw_comp_columns: bool = True, non_copy: bool = True) -> pd.DataFrame:
     # 构造字段名
     comp_rate_cols = [f"comp{i}_rate" for i in range(1, 9)]
     comp_inv_cols = [f"comp{i}_inv" for i in range(1, 9)]
@@ -75,7 +75,18 @@ def add_competition_features(df: pd.DataFrame, drop_raw_comp_columns: bool = Tru
         existing = [col for col in cols_to_drop if col in df_result.columns]
         df_result.drop(columns=existing, inplace=True)
 
-    return df_result
+    final_columns = [
+        "comp_label",
+        "comp_winrate",
+        "comp_loserate",
+        "comp_inventory_advantage",
+        "comp_inventory_common",
+        "comp_inventory_total",
+        "comp_inventory_winrate",
+        "no_comp"
+    ]
+
+    return df_result, final_columns
 
 
 if __name__ == "__main__":

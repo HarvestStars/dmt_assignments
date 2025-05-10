@@ -1,7 +1,11 @@
 import pandas as pd
 
-def process_search_behavior_features(df: pd.DataFrame, drop_raw_columns: bool = True) -> pd.DataFrame:
-    df_out = df.copy()
+def process_search_behavior_features(df: pd.DataFrame, drop_raw_columns: bool = True, non_copy: bool = True) -> pd.DataFrame:
+    df_out = None
+    if non_copy:
+        df_out = df
+    else:
+        df_out = df.copy()
 
     # -- 分箱1: 预计停留天数 (srch_length_of_stay) --
     stay_bins = [0, 1, 3, 5, 7, 10, 15, 30, 45, 60]
@@ -9,10 +13,15 @@ def process_search_behavior_features(df: pd.DataFrame, drop_raw_columns: bool = 
         "1_day", "2-3", "4-5", "6-7", "8-10",
         "11-15", "16-30", "31-45", "46_plus"
     ]
+    stay_labels_int = [
+        1, 2, 3, 4, 5,
+        6, 7, 8, 9
+    ]
+
     df_out["stay_length_label"] = pd.cut(
         df_out["srch_length_of_stay"],
         bins=stay_bins,
-        labels=stay_labels,
+        labels=stay_labels_int,
         right=False,
         include_lowest=True
     )
@@ -23,10 +32,14 @@ def process_search_behavior_features(df: pd.DataFrame, drop_raw_columns: bool = 
         "same_day", "1-3", "4-7", "8-14", "15-30",
         "31-90", "91-180", "181-420", "421-460", "460_plus"
     ]
+    booking_labels_int = [
+        1, 2, 3, 4, 5,
+        6, 7, 8, 9, 10
+    ]
     df_out["booking_window_label"] = pd.cut(
         df_out["srch_booking_window"],
         bins=booking_bins,
-        labels=booking_labels,
+        labels=booking_labels_int,
         right=False,
         include_lowest=True
     )
@@ -35,8 +48,12 @@ def process_search_behavior_features(df: pd.DataFrame, drop_raw_columns: bool = 
     if drop_raw_columns:
         df_out.drop(columns=["srch_length_of_stay", "srch_booking_window"], inplace=True)
 
+    final_columns = [
+        "srch_id", 
+        "stay_length_label", "booking_window_label"
+    ]
 
-    return df_out
+    return df_out, final_columns
 
 if __name__ == "__main__":
     import pandas as pd

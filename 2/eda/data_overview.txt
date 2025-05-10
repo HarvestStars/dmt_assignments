@@ -5,7 +5,7 @@ srch_id
 date_time                   不重要                            
 site_id                     不重要 但有点信息，先忽略
 srch_destination_id         不重要 但高id会引起book/click比提升
-srch_length_of_stay         重要!  旅客爱拖延，执行计划又爱临时抱佛脚的特性
+srch_length_of_stay         重要!
 srch_booking_window         重要!  
 srch_adults_count           不重要
 srch_children_count         不重要 但有点信息，和点击率相关
