@@ -11,4 +11,4 @@ def process_random_feature(df: pd.DataFrame, drop_raw_columns: bool = True, non_
     if drop_raw_columns:
         df_out.drop(columns=["random_bool"], inplace=True)
 
-    return df_out, []
+    return df_out, [], []

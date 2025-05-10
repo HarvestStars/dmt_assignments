@@ -24,26 +24,40 @@ OUT_DIR.mkdir(exist_ok=True)
 # ========== Step 1: 读取数据并处理 ==========
 print("[1/6] Reading and processing raw data...")
 df = pd.read_csv(CSV_PATH, nrows=1_000_000)
-df_a_clean, cols_A = process_search_behavior_features(df)
+
+df_final, cols_A, cols_categorical_A = process_search_behavior_features(df)
 print(f"Processed A class features: {cols_A}")
-df_b_clean, cols_B = process_hotel_features(df_a_clean)
+
+df_final, cols_B, cols_categorical_B = process_hotel_features(df_final)
 print(f"Processed B class features: {cols_B}")
-df_c_clean, cols_C = process_price_feature(df_b_clean)
+
+df_df_finalc_clean, cols_C, cols_categorical_C = process_price_feature(df_final)
 print(f"Processed C class features: {cols_C}")
-df_d_clean, cols_D = process_new_user(df_c_clean)
+
+df_final, cols_D, cols_categorical_D = process_new_user(df_final)
 print(f"Processed D class features: {cols_D}")
-df_e_clean, cols_E = process_distance_feature(df_d_clean)
+
+df_final, cols_E, cols_categorical_E = process_distance_feature(df_final)
 print(f"Processed E class features: {cols_E}")
-df_f_clean, cols_F = process_random_feature(df_e_clean)
+
+df_final, cols_F, cols_categorical_F = process_random_feature(df_final)
 print(f"Processed F class features: {cols_F}")
-df_g_clean, cols_G = add_competition_features(df_f_clean)
+
+df_final, cols_G, cols_categorical_G = add_competition_features(df_final)
 print(f"Processed G class features: {cols_G}")
-df_final, cols_train_label = process_train_label(df_g_clean)
+
+df_final, cols_train_label = process_train_label(df_final)
 print(f"Processed train label class features: {cols_train_label}")
 
 feature_cols = (
-    cols_A + cols_B + cols_C + cols_D + cols_E + cols_F +cols_G
+    cols_A + cols_B + cols_C  + cols_D + cols_E + cols_F +cols_G
 )
+
+categorical_cols = (
+    cols_categorical_A + cols_categorical_B + cols_categorical_C+ cols_categorical_D + 
+    cols_categorical_E + cols_categorical_F + cols_categorical_G
+)
+
 X = df_final[feature_cols]
 y = df_final[cols_train_label]
 
@@ -61,8 +75,13 @@ valid_group = valid_df.groupby('srch_id').size().to_list()
 
 # ========== Step 3: 构造 LightGBM Datasets ==========
 print("[3/6] Preparing LightGBM datasets...")
-lgb_train = lgb.Dataset(train_df[feature_cols], label=train_df[cols_train_label], group=train_group)
-lgb_valid = lgb.Dataset(valid_df[feature_cols], label=valid_df[cols_train_label], group=valid_group)
+for col in categorical_cols:
+    if col in train_df.columns:
+        train_df[col] = train_df[col].astype('category')
+        valid_df[col] = valid_df[col].astype('category')
+
+lgb_train = lgb.Dataset(train_df[feature_cols], label=train_df[cols_train_label], group=train_group, categorical_feature = categorical_cols)
+lgb_valid = lgb.Dataset(valid_df[feature_cols], label=valid_df[cols_train_label], group=valid_group, categorical_feature = categorical_cols)
 
 # ========== Step 4: 设置模型参数 ==========
 params = {

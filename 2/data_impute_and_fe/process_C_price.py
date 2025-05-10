@@ -38,7 +38,11 @@ def process_price_feature(df: pd.DataFrame, drop_raw_columns: bool = True, non_c
         "price_level", "promotion_flag"
     ]
 
-    return df_out, final_columns
+    final_class_labels = [
+        "price_level"
+    ]
+
+    return df_out, final_columns, final_class_labels
 
 if __name__ == "__main__":
     import pandas as pd

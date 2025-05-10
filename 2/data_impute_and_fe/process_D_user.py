@@ -18,9 +18,15 @@ def process_new_user(df: pd.DataFrame, drop_raw_columns: bool = False, non_copy:
     ).astype(int)
 
     final_columns = [
+        "visitor_hist_starrating",
+        "visitor_hist_adr_usd",
         "is_new_user"
     ]
-    return df_out, final_columns
+    final_class_labels = [
+        "is_new_user"
+    ]
+
+    return df_out, final_columns, final_class_labels
 
 if __name__ == "__main__":
     import pandas as pd

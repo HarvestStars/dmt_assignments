@@ -66,7 +66,12 @@ def process_hotel_features(df: pd.DataFrame, drop_raw_columns: bool = True, non_
     final_cols = [
         "prop_id", "review_score_label","location_score2_filled", "historical_price_level", "query_affinity_missing"
     ]
-    return df_out, final_cols
+
+    final_class_labels = [
+        "review_score_label", "location_score2_filled", "historical_price_level", "query_affinity_missing"
+    ]
+
+    return df_out, final_cols, final_class_labels
 
 if __name__ == "__main__":
     import os

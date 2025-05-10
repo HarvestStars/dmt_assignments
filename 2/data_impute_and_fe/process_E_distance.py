@@ -11,4 +11,4 @@ def process_distance_feature(df: pd.DataFrame, drop_raw_columns: bool = True, no
     if drop_raw_columns:
         df_out.drop(columns=["orig_destination_distance"], inplace=True)
 
-    return df_out, []
+    return df_out, [], []
