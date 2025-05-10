@@ -55,8 +55,15 @@ for col in cat_cols:
 # --- booking/click 分组分析 ---
 print("Plotting feature vs target relations...")
 for col in num_cols + cat_cols:
-    grp = df.groupby(col)[["booking_bool", "click_bool"]].mean()
-    grp.plot(kind="bar", figsize=(10, 5), title=f"{col} vs booking/click rate")
+    plot_col = col  # 默认用原始列名
+    # 针对连续数值型列进行分箱
+    bin_col = f"{col}_binned"
+    df[bin_col] = pd.cut(df[col], bins=30)  # 分30个箱
+    plot_col = bin_col
+
+    grp = df.groupby(plot_col)[["booking_bool", "click_bool"]].mean()
+
+    grp.plot(kind="bar", figsize=(10, 5), title=f"{plot_col} binned vs booking/click rate")
     plt.tight_layout()
     plt.savefig(os.path.join(SAVE_DIR, f"{col}_target_relation.png"))
     plt.close()

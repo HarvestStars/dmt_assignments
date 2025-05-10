@@ -61,11 +61,20 @@ for col in cat_cols:
     plt.savefig(os.path.join(SAVE_DIR, f"{col}_freq.png"))
     plt.close()
 
-# --- 分组 booking/click 概率分析 ---
+# --- 分组 booking/click 概率分析（带分箱） ---
 print("Plotting booking/click groupby average...")
 for col in num_cols + cat_cols:
-    grp = df.groupby(col)[["booking_bool", "click_bool"]].mean()
-    grp.plot(kind="bar", figsize=(10, 5), title=f"{col} vs booking/click rate")
+    plot_col = col  # 默认用原始列名
+    max_val = df[col].max()
+    step = 5  # 每5天一个段
+    bin_edges = list(range(0, int(max_val) + step, step))
+    bin_col = f"{col}_binned"
+    df[bin_col] = pd.cut(df[col], bins=bin_edges, right=False)
+    # df[bin_col] = pd.cut(df[col], bins=30)  # 分30个箱
+    plot_col = bin_col
+
+    grp = df.groupby(plot_col)[["booking_bool", "click_bool"]].mean()
+    grp.plot(kind="bar", figsize=(12, 5), title=f"{col} (binned) vs booking/click rate")
     plt.tight_layout()
     plt.savefig(os.path.join(SAVE_DIR, f"{col}_target_relation.png"))
     plt.close()

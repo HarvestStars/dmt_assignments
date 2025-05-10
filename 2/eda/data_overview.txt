@@ -1,45 +1,42 @@
-字段名                       缺值情况
+字段名                       是否重要|缺值情况|补值策略(含特征工程)
 
 # A类字段 搜索
 srch_id
-date_time
-site_id
-srch_destination_id
-srch_length_of_stay
-srch_booking_window
-srch_adults_count
-srch_children_count
-srch_room_count
-srch_saturday_night_bool
+date_time                   不重要                            
+site_id                     不重要 但有点信息，先忽略
+srch_destination_id         不重要 但高id会引起book/click比提升
+srch_length_of_stay         重要!  旅客爱拖延，执行计划又爱临时抱佛脚的特性
+srch_booking_window         重要!  
+srch_adults_count           不重要
+srch_children_count         不重要 但有点信息，和点击率相关
+srch_room_count             不重要
+srch_saturday_night_bool    不重要
 
 # B类字段 酒店
 prop_id
-prop_starrating
-prop_review_score            0.001485 # 酒店点评分 （0 表示没有，null表示不可获取）
-prop_brand_bool
-prop_location_score1 
-prop_location_score2         0.219902 # 酒店位置评分
-prop_country_id
-prop_log_historical_price
-srch_query_affinity_score    0.935986  # 互联网亲和性，也即互联网点击率。空表示没有注册营销平台，如自媒体号
+prop_starrating              不重要 和prop_review_score强相关，因此重复
+prop_review_score            重要!  | 0.001485 # 酒店点评分 （0 表示没有，null表示不可获取）| 整体分5类，0值单独为一类 意味着新酒店
+prop_brand_bool              不重要
+prop_location_score1         不重要
+prop_location_score2         重要!  | 0.219902 # 酒店位置评分 | 缺值已用-1填充意味着微小值 也即分两类，大值小值逻辑
+prop_country_id              不重要
+prop_log_historical_price    重要!  也得分5类
+srch_query_affinity_score    重要!  | 0.935986  # 互联网亲和性，也即互联网点击率。空表示没有注册营销平台，如自媒体号 | 缺值已设标志位
 
 # C类字段 定价
-price_usd
-promotion_flag 
-prop_log_historical_price
-booking_bool
-click_bool
+price_usd                    重要!
+promotion_flag               重要!
 
 # D类字段 用户(新用户，冷启动)
-visitor_location_country_id
-visitor_hist_starrating      0.949204  # 过去历史中居住酒店的平均星数
-visitor_hist_adr_usd         0.948977  # 过去居住酒店的均价
+visitor_location_country_id  不重要
+visitor_hist_starrating      重要! | 0.949204  # 过去历史中居住酒店的平均星数
+visitor_hist_adr_usd         重要! | 0.948977  # 过去居住酒店的均价
 
 # E类字段 距离
-orig_destination_distance    0.324258 # 搜索时，用户和酒店的距离，没卵用？
+orig_destination_distance    不重要 | 0.324258 # 搜索时，用户和酒店的距离，没卵用？
 
 # F类字段 列表结果默认字母排序还是随机排序
-random_bool
+random_bool                  不重要
 
 # G类字段 同酒店竞品平台信息(合并使用，代表市场竞品情况)
 comp1_rate                   0.975813

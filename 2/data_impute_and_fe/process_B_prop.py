@@ -18,9 +18,9 @@ def process_hotel_features(df: pd.DataFrame, drop_raw_columns: bool = True) -> p
             return "no_review"
         elif x <= 2.0:
             return "low"
-        elif x <= 3.5:
+        elif x <3.5:    # [2.0 - 3.5) 中分段
             return "medium"
-        elif x <= 4.5:
+        elif x <= 4.5:  # [3.5 - 4.5] 高分段
             return "high"
         else:
             return "very_high"
@@ -39,9 +39,23 @@ def process_hotel_features(df: pd.DataFrame, drop_raw_columns: bool = True) -> p
     df_processed["query_affinity_missing"] = df_processed["srch_query_affinity_score"].isnull().astype(int)
     # df_processed["srch_query_affinity_score"] = df_processed["srch_query_affinity_score"].fillna(-999) # 值很小意味着没有曝光
 
-    # ---------- 4. 删除原始字段（可选） ----------
+    # ---------- 4. prop_log_historical_price 分类映射 ----------
+    def map_price_level(x):
+        if x == 0:
+            return "zero"
+        elif x < 3:
+            return "very_low"
+        elif x < 4.5:
+            return "low"
+        elif x < 5.5:
+            return "mid"
+        else:
+            return "high"
+    df_processed["historical_price_level"] = df_processed["prop_log_historical_price"].apply(map_price_level)
+
+    # ---------- 5. 删除原始字段（可选） ----------
     if drop_raw_columns:
-        cols_to_drop = ["prop_review_score", "prop_location_score2", "srch_query_affinity_score"]
+        cols_to_drop = ["prop_review_score", "prop_location_score2", "srch_query_affinity_score", "prop_log_historical_price"]
         existing = [col for col in cols_to_drop if col in df_processed.columns]
         df_processed.drop(columns=existing, inplace=True)
 
