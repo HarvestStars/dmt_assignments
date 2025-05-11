@@ -84,7 +84,7 @@ def process_search_features_smoothed(df: pd.DataFrame, drop_raw_columns: bool = 
         "srch_saturday_night_bool"
     ]
 
-    return df_out, final_columns, []
+    return df_out, final_columns, ["srch_saturday_night_bool"]
 
 if __name__ == "__main__":
     import pandas as pd

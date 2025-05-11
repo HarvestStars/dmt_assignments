@@ -14,16 +14,14 @@ from data_impute_and_fe.process_F_random import process_random_feature
 from data_impute_and_fe.process_G_comp import add_competition_features
 from data_impute_and_fe.process_train_label import process_train_label
 
-
 # Features 和 Label
 CSV_PATH = "./dmt-2025-2nd-assignment/training_set_VU_DM.csv"
 OUT_DIR = Path("split_outputs")
 OUT_DIR.mkdir(exist_ok=True)
 
-
 # ========== Step 1: 读取数据并处理 ==========
 print("[1/6] Reading and processing raw data...")
-df = pd.read_csv(CSV_PATH, nrows=5_000_000)
+df = pd.read_csv(CSV_PATH, nrows=1_000_000)
 
 df_final, cols_A, cols_categorical_A = process_search_features_smoothed(df, drop_raw_columns=False)
 print(f"Processed A class features: {cols_A}")
@@ -37,20 +35,20 @@ print(f"Processed C class features: {cols_C}")
 df_final, cols_D, cols_categorical_D = process_new_user(df_final, drop_raw_columns=False)
 print(f"Processed D class features: {cols_D}")
 
-# df_final, cols_E, cols_categorical_E = process_distance_feature(df_final, drop_raw_columns=False)
-# print(f"Processed E class features: {cols_E}")
 cols_E = []
 cols_categorical_E = []
+# df_final, cols_E, cols_categorical_E = process_distance_feature(df_final, drop_raw_columns=False)
+# print(f"Processed E class features: {cols_E}")
 
-# df_final, cols_F, cols_categorical_F = process_random_feature(df_final, drop_raw_columns=False)
-# print(f"Processed F class features: {cols_F}")
 cols_F = []
 cols_categorical_F = []
+# df_final, cols_F, cols_categorical_F = process_random_feature(df_final, drop_raw_columns=False)
+# print(f"Processed F class features: {cols_F}")
 
-# df_final, cols_G, cols_categorical_G = add_competition_features(df_final, drop_raw_columns=False)
-# print(f"Processed G class features: {cols_G}")
 cols_G = []
 cols_categorical_G = []
+df_final, cols_G, cols_categorical_G = add_competition_features(df_final, drop_raw_columns=False)
+print(f"Processed G class features: {cols_G}")
 
 df_final, cols_train_label = process_train_label(df_final, drop_raw_columns=False)
 print(f"Processed train label class features: {cols_train_label}")
