@@ -1,0 +1,87 @@
+import numpy as np
+import pandas as pd
+from catboost import CatBoostRegressor  
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+
+# train_size = 1000
+# train_data = pd.read_csv("../2/dmt-2025-2nd-assignment/training_set_VU_DM.csv", nrows=train_size)
+train_data = pd.read_csv("../2/dmt-2025-2nd-assignment/training_set_VU_DM.csv")
+
+conditions = [
+    (train_data['booking_bool'] == 1),                     
+    (train_data['click_bool'] == 1) & (train_data['booking_bool'] == 0)  
+]
+choices = [10, 5]
+train_data['score'] = np.select(conditions, choices, default=0)
+
+features = [
+    'srch_id',
+    'site_id',
+    'visitor_location_country_id',
+    'prop_country_id',
+    'prop_id',
+    'prop_starrating',
+    'prop_review_score',
+    'prop_brand_bool',
+    'prop_location_score1',
+    'prop_location_score2',
+    'price_usd',
+    'promotion_flag',
+    'srch_destination_id',
+    'srch_length_of_stay',
+    'srch_booking_window',
+    'srch_adults_count',
+    'srch_children_count',
+    'srch_room_count',
+    'srch_saturday_night_bool'
+]
+
+categorical_features = [
+    'site_id',
+    'visitor_location_country_id',
+    'prop_country_id',
+    'prop_id',  
+    'srch_destination_id',
+    'promotion_flag',
+    'srch_saturday_night_bool'
+]
+
+X = train_data[features]
+y = train_data['score']
+# X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+sample_weights = np.where(y == 10, 10, np.where(y == 5, 5, 1))
+
+model = CatBoostRegressor(
+    iterations=3000,
+    learning_rate=0.05,
+    depth=8,
+    l2_leaf_reg=10,
+    eval_metric='RMSE',
+    cat_features=categorical_features, 
+    verbose=100
+)
+
+model.fit(
+    X, y,
+    sample_weight=sample_weights,
+    verbose=100
+)
+
+# y_pred = model.predict(X_test)
+# mse = mean_squared_error(y_test, y_pred)
+# print(f"Mean Squared Error (MSE): {mse:.4f}")
+
+# test_data = pd.read_csv("../2/dmt-2025-2nd-assignment/test_set_VU_DM.csv", nrows=train_size)
+test_data = pd.read_csv("../2/dmt-2025-2nd-assignment/test_set_VU_DM.csv")
+
+X_test = test_data[features]
+test_predictions = model.predict(X_test)
+test_data['predicted_score'] = test_predictions
+test_data = test_data[['srch_id', 'prop_id', 'predicted_score']]
+sorted_data = test_data.sort_values(
+    by=['srch_id', 'predicted_score'],
+    ascending=[True, False]
+).reset_index(drop=True)
+sorted_data[['srch_id','prop_id']].to_csv("catboost_predictions_trial.csv", index=False)
