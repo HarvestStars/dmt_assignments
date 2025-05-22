@@ -7,9 +7,9 @@ from sklearn.model_selection import GroupShuffleSplit
 from sklearn.metrics import ndcg_score
 from pathlib import Path
 
-from data_impute_and_fe.process_A_srch import process_search_behavior_features
+from data_impute_and_fe.process_A_srch import process_search_features_smoothed
 from data_impute_and_fe.process_B_prop import process_hotel_features
-from data_impute_and_fe.process_C_price import process_price_feature
+from data_impute_and_fe.process_C_price import process_price_feature_smoothed
 from data_impute_and_fe.process_D_user import process_new_user
 from data_impute_and_fe.process_E_distance import process_distance_feature
 from data_impute_and_fe.process_F_random import process_random_feature
@@ -24,13 +24,13 @@ OUT_DIR.mkdir(exist_ok=True)
 
 df = pd.read_csv(CSV_PATH, nrows=1_000_000)
 
-df_final, cols_A, cols_categorical_A = process_search_behavior_features(df)
+df_final, cols_A, cols_categorical_A = process_search_features_smoothed(df)
 print(f"Processed A class features: {cols_A}")
 
 df_final, cols_B, cols_categorical_B = process_hotel_features(df_final)
 print(f"Processed B class features: {cols_B}")
 
-df_final, cols_C, cols_categorical_C = process_price_feature(df_final)
+df_final, cols_C, cols_categorical_C = process_price_feature_smoothed(df_final)
 print(f"Processed C class features: {cols_C}")
 
 # df_final, cols_D, cols_categorical_D = process_new_user(df_final)
