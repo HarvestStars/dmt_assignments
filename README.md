@@ -1,83 +1,94 @@
 # 📊 Data Mining Project – Vrije Universiteit Amsterdam
 
-This repository contains the code and data for the **first group assignment** of the *Data Mining* course at **Vrije Universiteit Amsterdam**. The assignment uses an advanced dataset featuring smartphone usage data from **27 participants**.
+This repository contains all code, data, and outputs for the **group assignments** of the *Data Mining* course at **Vrije Universiteit Amsterdam**.
 
 ---
-
 ## 📁 Folder Structure
 
-- `raw_data/` – All datasets used for the project  
-- `src/` – Source code organized into subfolders:
-  - `classification/` – Classification and RNN regression models
-  - `regression/` – Random Forest regression
-  - `data/` – Data cleaning scripts
-- `fig/` – Output plots and visualizations
-- `presentation.ipynb` – EDA summary notebook
-
+```text
+├── raw_data/              # All input datasets
+├── src/                   # Source code for Assignment 1
+│   ├── classification/    # Classification and RNN regression models
+│   ├── regression/        # Random Forest regression
+│   └── data/              # Data preprocessing scripts
+├── 2/                     # Code and analysis for Assignment 2
+│   └── eda/               # Exploratory Data Analysis and feature engineering
+├── fig/                   # Output plots and visualizations
+├── presentation.ipynb     # EDA notebook (Assignment 1)
+└── README.md              # Project description and instructions
 ---
+```
 
 ## 📦 Dataset Overview
 
-All datasets are located in the `raw_data/` folder:
+All datasets are stored in the `raw_data/` folder.
 
+### 📍 Assignment 1 Datasets:
 - `cleaned_data_daily_summary_mood_imputed_sliding_window.csv`  
-  ➤ Used for **regression algorithms** (RNN and Decision Tree)  
-  ➤ Preprocessed with:
-  - Sliding window of size 5
-  - Missing values imputed using variable means
+  ➤ Used for regression with sliding window (RNN, Decision Tree)
 
 - `mood_classified_sliding_window.csv`  
-  ➤ Used for **classification algorithms** (RNN and Random Forest)  
-  ➤ Target mood variable converted into **binary classes (0 and 1)**
+  ➤ Used for binary classification with RNN and Random Forest
 
 - `mood_classified.csv`  
-  ➤ Classification dataset **without** sliding window
+  ➤ Classification without sliding window
 
 - `cleaned_data_daily_summary_mood_imputed.csv`  
-  ➤ Regression dataset **without** sliding window
+  ➤ Regression without sliding window
 
 ---
 
 ## 🧠 Algorithms Implemented
 
-All source code is stored in `src/`.
+### 🔷 Assignment 1 – Mood Prediction from Smartphone Usage
+Located in `src/`:
 
-### 🔷 Classification & RNN Regression (in `src/classification/`):
-- `RNN_trial.py` – RNN for regression
-- `RNN_trial_torch.py` – PyTorch version of RNN regression
-- `decision_tree.py` – Decision Tree for regression
-- `tree_tuning.py` – Grid Search for Decision Tree hyperparameters
-- `RandomForest.py` – Random Forest classifier
-- `tuning_paras.py` – Hyperparameter tuning for Random Forest
-- `RNN_classification.py` – RNN for binary classification
+- **Classification:**
+  - Random Forest
+  - RNN (TensorFlow & PyTorch)
 
-### 🔶 Regression (in `src/regression/`):
-- `RandomForest.py` – Random Forest regressor
+- **Regression:**
+  - Decision Tree
+  - Random Forest
+  - RNN (regression)
+
+- Includes hyperparameter tuning scripts and evaluation code
 
 ---
 
-## 🧰 Packages and Tools
+### 🔶 Assignment 2 – Hotel Recommendation System
 
-All code is written in **Python**, using the following libraries:
+Located in `2/`:
 
-- [`scikit-learn`](https://scikit-learn.org/)
-- [`TensorFlow`](https://www.tensorflow.org/)
-- [`PyTorch`](https://pytorch.org/)
+- `2/eda/` contains:
+  - Exploratory data analysis
+  - Feature engineering
+  - Data preprocessing insights
+  - Bias detection and handling (e.g., for `srch_query_affinity_score`)
+
+- Model implementation (in subfolders):
+  - LightGBM with LambdaRank objective
+  - CatBoost
+  - KNN (benchmark)
+  - Evaluation metrics: **NDCG@k**, **Hit@1**, and score visualizations
+  - Feature impact analysis and cold-start handling strategy
+
+---
+
+## 🧰 Tools and Libraries
+
+All code is written in **Python**, using:
+
+- `scikit-learn`
+- `LightGBM`, `CatBoost`
+- `TensorFlow`, `PyTorch`
 - `pandas`, `numpy`, `matplotlib`, `seaborn`
-
----
-
-## 📈 Output & Results
-
-- Visual outputs and performance plots are saved in the `fig/` folder
-- Exploratory Data Analysis (EDA) can be found in:
-  - [`presentation.ipynb`](./presentation.ipynb)
 
 ---
 
 ## 📬 Contact
 
-For questions or feedback, feel free to open an issue or contact a group member.
+For questions or contributions, feel free to open an issue or contact any group member directly.
 
 
 
